@@ -18,7 +18,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 const formSchema = z.object({
-  to: z.string().email('Invalid email address'),
+  to: z
+    .string()
+    .min(1, 'Recipient email is required.')
+    .refine(
+      (value) => {
+        const emails = value.split(',').map((email) => email.trim());
+        return emails.every((email) => z.string().email().safeParse(email).success);
+      },
+      {
+        message: 'Please provide a valid, comma-separated list of email addresses.',
+      }
+    ),
   subject: z.string().min(1, 'Subject is required'),
   text: z.string().min(1, 'Message is required'),
   html: z.string().optional(),
@@ -72,7 +83,7 @@ export function EmailForm() {
             <FormItem>
               <FormLabel>To</FormLabel>
               <FormControl>
-                <Input placeholder="recipient@example.com" {...field} />
+                <Input placeholder="recipient1@example.com, recipient2@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

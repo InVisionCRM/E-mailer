@@ -2,7 +2,7 @@ export type EmailStatus = 'pending' | 'success' | 'error';
 
 export interface EmailData {
   id: string;
-  to: string;
+  to: string | string[];
   subject: string;
   text: string;
   html?: string;
@@ -12,7 +12,7 @@ export interface EmailData {
 }
 
 export interface SendEmailRequest {
-  to: string;
+  to: string | string[];
   subject: string;
   text: string;
   html?: string;
