@@ -13,8 +13,9 @@ export async function sendEmail(data: SendEmailRequest) {
       html: data.html,
     });
     return { status: 'success', data: result };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Email sending failed:', error);
-    return { status: 'error', error: error.message };
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { status: 'error', error: message };
   }
 }
