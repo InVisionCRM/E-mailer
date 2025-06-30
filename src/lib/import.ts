@@ -1,4 +1,3 @@
-import type { z } from 'zod';
 
 // Simple email regex for basic validation fallback
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;

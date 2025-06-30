@@ -52,11 +52,11 @@ export function EmailForm() {
     },
   });
 
-  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function handleFileUpload(file: File) {
+    const uploadedFile = file;
+    if (!uploadedFile) return;
     try {
-      const emails = await parseRecipientFile(file);
+      const emails = await parseRecipientFile(uploadedFile);
       if (emails.length === 0) {
         toast.error('No valid email addresses found in file.');
         return;
@@ -118,7 +118,7 @@ export function EmailForm() {
 
         {/* File import */}
         <div className="space-y-2">
-          <UploadArea onFileSelected={handleFileChange as any} />
+          <UploadArea onFileSelected={handleFileUpload} />
           {emailCount > 0 && (
             <p className="text-sm text-muted-foreground">{emailCount} recipients loaded</p>
           )}
