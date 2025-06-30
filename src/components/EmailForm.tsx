@@ -66,7 +66,9 @@ export function EmailForm() {
 
       toast.success('Email sent successfully!');
       form.reset();
-    } catch (error) {
+        } catch {
+      // The error is not used, but we want to show a generic message.
+      // For more detailed error handling, you could log the error to a service.
       toast.error('Failed to send email. Please try again.');
     } finally {
       setIsLoading(false);
