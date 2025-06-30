@@ -16,6 +16,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { parseRecipientFile } from '@/lib/import';
+import UploadArea from '@/components/UploadArea';
 
 const formSchema = z.object({
   to: z
@@ -39,6 +41,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function EmailForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [emailCount, setEmailCount] = useState(0);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,6 +51,26 @@ export function EmailForm() {
       html: '',
     },
   });
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const emails = await parseRecipientFile(file);
+      if (emails.length === 0) {
+        toast.error('No valid email addresses found in file.');
+        return;
+      }
+      const existing = form.getValues('to');
+      const combined = [...new Set([...existing.split(',').map((e) => e.trim()).filter(Boolean), ...emails])];
+      form.setValue('to', combined.join(', '));
+      setEmailCount(combined.length);
+      toast.success(`${emails.length} email addresses imported.`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to parse file. Ensure it is a valid CSV or Excel file.');
+    }
+  }
 
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
@@ -65,6 +88,7 @@ export function EmailForm() {
       }
 
       toast.success('Email sent successfully!');
+      setEmailCount(0);
       form.reset();
         } catch {
       // The error is not used, but we want to show a generic message.
@@ -91,6 +115,14 @@ export function EmailForm() {
             </FormItem>
           )}
         />
+
+        {/* File import */}
+        <div className="space-y-2">
+          <UploadArea onFileSelected={handleFileChange as any} />
+          {emailCount > 0 && (
+            <p className="text-sm text-muted-foreground">{emailCount} recipients loaded</p>
+          )}
+        </div>
         <FormField
           control={form.control}
           name="subject"
