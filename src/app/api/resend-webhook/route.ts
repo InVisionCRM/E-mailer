@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { pushEvent } from '@/lib/webhookStore';
 
 // If you enable signing in Resend, set RESEND_WEBHOOK_SECRET in Vercel.
 // Then uncomment the signature verification block below.
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const event = JSON.parse(rawBody);
+  pushEvent(event);
   console.log('Verified Resend webhook:', event);
 
   // TODO: persist event in DB or trigger business logic here.

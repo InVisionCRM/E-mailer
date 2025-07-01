@@ -63,6 +63,10 @@ export function EmailForm() {
       }
       const existing = form.getValues('to');
       const combined = [...new Set([...existing.split(',').map((e) => e.trim()).filter(Boolean), ...emails])];
+      if (combined.length > 300) {
+        toast.error('Maximum 300 recipients allowed at once.');
+        return;
+      }
       form.setValue('to', combined.join(', '));
       setEmailCount(combined.length);
       toast.success(`${emails.length} email addresses imported.`);
@@ -73,6 +77,11 @@ export function EmailForm() {
   }
 
   async function onSubmit(values: FormValues) {
+    const recipients = values.to.split(',').map((e) => e.trim()).filter(Boolean);
+    if (recipients.length > 300) {
+      toast.error('Maximum 300 recipients allowed at once.');
+      return;
+    }
     setIsLoading(true);
     try {
       const response = await fetch('/api/send-email', {
@@ -83,14 +92,16 @@ export function EmailForm() {
         body: JSON.stringify(values),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send email');
+      const resJson = await response.json();
+      if (!response.ok || resJson.error) {
+        toast.error(resJson.error ?? 'Failed to send email');
+        return;
       }
 
-      toast.success('Email sent successfully!');
+      toast.success(`Email sent successfully to ${recipients.length} recipients.`);
       setEmailCount(0);
       form.reset();
-        } catch {
+    } catch {
       // The error is not used, but we want to show a generic message.
       // For more detailed error handling, you could log the error to a service.
       toast.error('Failed to send email. Please try again.');
@@ -173,6 +184,12 @@ export function EmailForm() {
         <Button type="submit" disabled={isLoading}>
           {isLoading ? 'Sending...' : 'Send Email'}
         </Button>
+              <p className="text-sm text-muted-foreground">
+          Want to see delivery events?{' '}
+          <a href="/webhook-events" className="underline hover:text-primary">
+            View webhook responses
+          </a>
+        </p>
       </form>
     </Form>
   );
