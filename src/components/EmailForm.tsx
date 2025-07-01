@@ -63,8 +63,8 @@ export function EmailForm() {
       }
       const existing = form.getValues('to');
       const combined = [...new Set([...existing.split(',').map((e) => e.trim()).filter(Boolean), ...emails])];
-      if (combined.length > 300) {
-        toast.error('Maximum 300 recipients allowed at once.');
+      if (combined.length > 50) {
+        toast.error('Maximum 50 recipients allowed at once.');
         return;
       }
       form.setValue('to', combined.join(', '));
@@ -78,8 +78,8 @@ export function EmailForm() {
 
   async function onSubmit(values: FormValues) {
     const recipients = values.to.split(',').map((e) => e.trim()).filter(Boolean);
-    if (recipients.length > 300) {
-      toast.error('Maximum 300 recipients allowed at once.');
+    if (recipients.length > 50) {
+      toast.error('Maximum 50 recipients allowed at once.');
       return;
     }
     setIsLoading(true);
