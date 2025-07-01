@@ -40,11 +40,12 @@ export async function POST(request: Request) {
       chunks.push(toEmails.slice(i, i + 50));
     }
 
-    const results = [] as unknown[];
+    type EmailResult = Awaited<ReturnType<typeof sendEmail>>;
+    const results: EmailResult[] = [];
     for (const chunk of chunks) {
       const res = await sendEmail({ to: chunk, subject, text, html });
       results.push(res);
-      if ((res as any).error) {
+      if (res.status === 'error') {
         break; // stop on first failure
       }
     }

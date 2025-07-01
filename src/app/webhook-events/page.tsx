@@ -4,7 +4,7 @@ async function fetchEvents() {
   const res = await fetch('/api/webhook-events', { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to load events');
   const json = await res.json();
-  return json.events as any[];
+  return json.events as import('@/lib/webhookStore').ResendEvent[];
 }
 
 export default async function WebhookEventsPage() {
